@@ -1,0 +1,66 @@
+{
+  "publisher": "9romise",
+  "name": "vscode-npmx",
+  "displayName": "npmx",
+  "type": "module",
+  "version": "0.0.1",
+  "packageManager": "pnpm@10.28.2",
+  "author": {
+    "name": "Vida Xie",
+    "email": "vida_2020@163.com",
+    "url": "https://github.com/9romise"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/9romise/vscode-npmx#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/9romise/vscode-npmx.git"
+  },
+  "bugs": {
+    "url": "https://github.com/9romise/vscode-npmx/issues"
+  },
+  "keywords": [
+    "npmx"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/index.mjs",
+  "icon": "res/icon.svg",
+  "files": [
+    "LICENSE.md",
+    "dist/*",
+    "res/*"
+  ],
+  "engines": {
+    "vscode": "^1.101.0"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "scripts": {
+    "dev": "tsdown --watch",
+    "build": "tsdown",
+    "update": "vscode-ext-gen --scope npmx",
+    "check": "eslint . && tsc --noEmit",
+    "vscode:prepublish": "npm run build",
+    "publish": "vsce publish --no-dependencies",
+    "pack": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "@types/vscode": "1.101.0",
+    "@vida0905/eslint-config": "^2.9.0",
+    "@vscode/vsce": "^3.7.1",
+    "eslint": "^9.39.2",
+    "husky": "^9.1.7",
+    "nano-staged": "^0.9.0",
+    "reactive-vscode": "^0.4.1",
+    "tsdown": "^0.20.1",
+    "typescript": "^5.9.3",
+    "vscode-ext-gen": "1.3.0"
+  },
+  "nano-staged": {
+    "*": "eslint --fix"
+  }
+}

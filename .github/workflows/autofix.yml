@@ -1,0 +1,15 @@
+name: autofix.ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  autofix:
+    uses: sxzz/workflows/.github/workflows/autofix.yml@v1
+    permissions:
+      contents: read

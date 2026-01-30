@@ -42,8 +42,11 @@
     "dev": "tsdown --watch",
     "build": "tsdown",
     "update": "vscode-ext-gen --scope npmx",
-    "check": "eslint . --fix && tsc --noEmit",
-    "vscode:prepublish": "npm run build",
+    "check": "npm run lint:fix && npm run typecheck",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "vscode:prepublish": "npm run update && npm run build",
     "publish": "vsce publish --no-dependencies",
     "pack": "vsce package --no-dependencies"
   },

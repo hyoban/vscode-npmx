@@ -59,6 +59,7 @@
   "scripts": {
     "dev": "tsdown --watch",
     "build": "tsdown",
+    "postinstall": "npm run update",
     "update": "vscode-ext-gen --scope npmx",
     "check": "npm run lint:fix && npm run typecheck",
     "lint": "eslint .",

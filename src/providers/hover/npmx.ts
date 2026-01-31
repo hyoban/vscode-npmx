@@ -1,5 +1,7 @@
 import type { Extractor } from '#types/extractor'
 import type { HoverProvider, Position, TextDocument } from 'vscode'
+import { getPackageInfo } from '#utils/npm'
+import { extractVersion } from '#utils/version'
 import { Hover, MarkdownString } from 'vscode'
 
 export class NpmxHoverProvider<T extends Extractor> implements HoverProvider {
@@ -9,7 +11,7 @@ export class NpmxHoverProvider<T extends Extractor> implements HoverProvider {
     this.extractor = extractor
   }
 
-  provideHover(document: TextDocument, position: Position) {
+  async provideHover(document: TextDocument, position: Position) {
     const root = this.extractor.parse(document)
     if (!root)
       return
@@ -21,8 +23,15 @@ export class NpmxHoverProvider<T extends Extractor> implements HoverProvider {
 
     const { name, version } = dep
     const coercedVersion = extractVersion(version)
-    const md = new MarkdownString('')
+    const md = new MarkdownString('', true)
     md.isTrusted = true
+
+    const pkg = await getPackageInfo(name)
+    const currentVersion = pkg.versions[coercedVersion]
+    if (currentVersion) {
+      if (currentVersion.hasProvenance)
+        md.appendMarkdown(`[$(verified) Verified provenance](https://www.npmjs.com/package/${name}/v/${currentVersion.version}#provenance)\n\n`)
+    }
 
     const footer = [
       `**[View on npmx](https://npmx.dev/package/${name})**`,

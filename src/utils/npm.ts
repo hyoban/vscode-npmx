@@ -1,14 +1,16 @@
 import type { Packument, PackumentVersion } from '@npm/types'
 import { NPM_REGISTRY } from '#constants'
+import { logger } from '#state'
 import { LRUCache } from 'lru-cache'
 import { ofetch } from 'ofetch'
 
 interface ResolvedPackumentVersion extends Pick<PackumentVersion, 'version'> {
   tag?: string
   hasProvenance: boolean
+  deprecated?: string
 }
 
-interface ResolvedPackument {
+export interface ResolvedPackument {
   versions: Record<string, ResolvedPackumentVersion>
 }
 
@@ -31,6 +33,7 @@ const cache = new LRUCache<string, ResolvedPackument>({
   fetchMethod: async (name, staleValue, { signal }) => {
     const encodedName = encodePackageName(name)
 
+    logger.info(`fetching ${name}...`)
     const pkg = await ofetch<Packument>(`${NPM_REGISTRY}/${encodedName}`, { signal })
 
     const resolvedVersions = Object.fromEntries(
@@ -42,6 +45,7 @@ const cache = new LRUCache<string, ResolvedPackument>({
             version: v,
             // @ts-expect-error present if published with provenance
             hasProvenance: !!pkg.versions[v].dist.attestations,
+            deprecated: pkg.versions[v].deprecated,
           },
         ]),
     )

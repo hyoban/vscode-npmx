@@ -12,7 +12,7 @@ import { YamlExtractor } from './extractors/yaml'
 import { displayName, version } from './generated-meta'
 import { VersionCompletionItemProvider } from './providers/completion-item/version'
 import { registerDiagnosticCollection } from './providers/diagnostics'
-import { NpmxDocumentLinkProvider } from './providers/document-link/npmx'
+import { NpmxHoverProvider } from './providers/hover/npmx'
 import { config, logger } from './state'
 
 export const { activate, deactivate } = defineExtension((ctx) => {
@@ -22,13 +22,13 @@ export const { activate, deactivate } = defineExtension((ctx) => {
   const yamlExtractor = new YamlExtractor()
 
   ctx.subscriptions.push(
-    languages.registerDocumentLinkProvider(
+    languages.registerHoverProvider(
       { pattern: PACKAGE_JSON_PATTERN },
-      new NpmxDocumentLinkProvider(jsonExtractor),
+      new NpmxHoverProvider(jsonExtractor),
     ),
-    languages.registerDocumentLinkProvider(
+    languages.registerHoverProvider(
       { pattern: PNPM_WORKSPACE_PATTERN },
-      new NpmxDocumentLinkProvider(yamlExtractor),
+      new NpmxHoverProvider(yamlExtractor),
     ),
   )
 

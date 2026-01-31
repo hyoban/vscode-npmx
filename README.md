@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/9romise/vscode-npmx/blob/main/res/logo.png?raw=true" height="150">
+</p>
+
 <h1 align="center">npmx <sup>VS Code</sup></h1>
 
 <p align="center">

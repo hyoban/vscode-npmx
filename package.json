@@ -5,6 +5,7 @@
   "type": "module",
   "version": "0.0.1",
   "packageManager": "pnpm@10.28.2",
+  "description": "A better browser for the npm registry",
   "author": {
     "name": "Vida Xie",
     "email": "vida_2020@163.com",
@@ -26,7 +27,7 @@
     "Other"
   ],
   "main": "./dist/index.mjs",
-  "icon": "res/icon.svg",
+  "icon": "res/logo.png",
   "files": [
     "LICENSE.md",
     "dist/*",

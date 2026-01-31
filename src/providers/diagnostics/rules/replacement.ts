@@ -1,6 +1,6 @@
 import type { ModuleReplacement } from 'module-replacements'
 import type { DiagnosticRule } from '..'
-import { getReplacement } from '#utils/replacement'
+import { getReplacement } from '#utils/npmx'
 import { DiagnosticSeverity } from 'vscode'
 
 // https://github.com/npmx-dev/npmx.dev/blob/main/app/components/PackageReplacement.vue#L8-L30

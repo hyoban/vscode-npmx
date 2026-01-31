@@ -1,8 +1,8 @@
 import type { Packument, PackumentVersion } from '@npm/types'
-import { NPM_REGISTRY } from '#constants'
-import { logger } from '#state'
-import { LRUCache } from 'lru-cache'
 import { ofetch } from 'ofetch'
+import { createCachedFetch } from './cache'
+
+const NPM_REGISTRY = 'https://registry.npmjs.org'
 
 interface ResolvedPackumentVersion extends Pick<PackumentVersion, 'version'> {
   tag?: string
@@ -25,46 +25,33 @@ export function encodePackageName(name: string): string {
   return encodeURIComponent(name)
 }
 
-const cache = new LRUCache<string, ResolvedPackument>({
-  max: 500,
-  ttl: 5 * 60 * 1000,
-  updateAgeOnGet: true,
-  allowStale: true,
-  fetchMethod: async (name, staleValue, { signal }) => {
+export const getPackageInfo = createCachedFetch<ResolvedPackument>(
+  'package info',
+  async (name, staleValue, { signal }) => {
     const encodedName = encodePackageName(name)
 
-    try {
-      logger.info(`[${name}] fetching package info...`)
-      const pkg = await ofetch<Packument>(`${NPM_REGISTRY}/${encodedName}`, { signal })
-      logger.info(`[${name}] fetching package info done!`)
+    const pkg = await ofetch<Packument>(`${NPM_REGISTRY}/${encodedName}`, { signal })
 
-      const resolvedVersions = Object.fromEntries(
-        Object.keys(pkg.versions)
-          .filter((v) => pkg.time[v])
-          .map<[string, ResolvedPackumentVersion]>((v) => [
-            v,
-            {
-              version: v,
-              // @ts-expect-error present if published with provenance
-              hasProvenance: !!pkg.versions[v].dist.attestations,
-              deprecated: pkg.versions[v].deprecated,
-            },
-          ]),
-      )
+    const resolvedVersions = Object.fromEntries(
+      Object.keys(pkg.versions)
+        .filter((v) => pkg.time[v])
+        .map<[string, ResolvedPackumentVersion]>((v) => [
+          v,
+          {
+            version: v,
+            // @ts-expect-error present if published with provenance
+            hasProvenance: !!pkg.versions[v].dist.attestations,
+            deprecated: pkg.versions[v].deprecated,
+          },
+        ]),
+    )
 
-      Object.entries(pkg['dist-tags']).forEach(([tag, version]) => {
-        resolvedVersions[version].tag = tag
-      })
+    Object.entries(pkg['dist-tags']).forEach(([tag, version]) => {
+      resolvedVersions[version].tag = tag
+    })
 
-      return {
-        versions: resolvedVersions,
-      }
-    } catch (err) {
-      logger.warn(`[${name}] fetching package info error: `, err)
+    return {
+      versions: resolvedVersions,
     }
   },
-})
-
-export async function getPackageInfo(name: string) {
-  return (await cache.fetch(name))!
-}
+)

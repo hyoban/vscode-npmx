@@ -1,6 +1,5 @@
 import type { Extractor } from '#types/extractor'
 import type { HoverProvider, Position, TextDocument } from 'vscode'
-import { encodePackageName } from '#utils/npm'
 import { Hover, MarkdownString } from 'vscode'
 
 export class NpmxHoverProvider<T extends Extractor> implements HoverProvider {
@@ -25,7 +24,7 @@ export class NpmxHoverProvider<T extends Extractor> implements HoverProvider {
     const md = new MarkdownString('')
     md.isTrusted = true
 
-    md.appendMarkdown(`[View on npmx](https://npmx.dev/package/${encodePackageName(name)})  \n`)
+    md.appendMarkdown(`[View on npmx](https://npmx.dev/package/${name})  \n`)
 
     return new Hover(md)
   }

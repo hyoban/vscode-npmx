@@ -63,6 +63,7 @@
     "postinstall": "npm run update",
     "update": "vscode-ext-gen --scope npmx",
     "check": "npm run lint:fix && npm run typecheck",
+    "test": "vitest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
@@ -82,13 +83,13 @@
     "eslint": "^9.39.2",
     "husky": "^9.1.7",
     "jsonc-parser": "^3.3.1",
-    "lru-cache": "^11.2.5",
     "module-replacements": "^2.11.0",
     "nano-staged": "^0.9.0",
     "ofetch": "^2.0.0-alpha.3",
     "reactive-vscode": "^0.4.1",
     "tsdown": "^0.20.1",
     "typescript": "^5.9.3",
+    "vitest": "^4.0.18",
     "vscode-ext-gen": "1.3.0",
     "yaml": "^2.8.2"
   }

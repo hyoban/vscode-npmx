@@ -68,9 +68,10 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
-    "vscode:prepublish": "npm run update && npm run build",
+    "vscode:prepublish": "npm run build",
     "publish": "vsce publish --no-dependencies",
-    "pack": "vsce package --no-dependencies"
+    "package": "vsce package --no-dependencies",
+    "release": "bumpp"
   },
   "nano-staged": {
     "*": "eslint --fix"

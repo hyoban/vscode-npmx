@@ -11,7 +11,24 @@
   <a href="https://kermanx.github.io/reactive-vscode/" target="__blank"><img src="https://img.shields.io/badge/made_with-reactive--vscode-%23007ACC?style=flat&labelColor=%23229863"  alt="Made with reactive-vscode" /></a>
 </p>
 
-## Configs
+> [!NOTE]
+> 🚧 **Preview Version** - This extension is under active development. Some features and configurations may change.
+
+## Features
+
+- **Hover Information** - Quick links to [npmx.dev](https://npmx.dev) for package info and documentation, with provenance verification status
+- **Version Completion** - Autocomplete package versions with provenance filtering support
+- **Diagnostics**
+  - Deprecated package warnings
+  - Package replacement suggestions (via [module-replacements](https://github.com/es-tooling/module-replacements))
+  - Vulnerability detection
+
+## Supported Files
+
+- `package.json`
+- `pnpm-workspace.yaml`
+
+## Configuration
 
 <!-- configs -->
 
@@ -20,6 +37,7 @@
 | `npmx.versionCompletion` | Version completion behavior: 'all' shows all versions, 'provenance-only' shows only versions with provenance, 'off' disables version completion | `string` | `"provenance-only"` |
 
 <!-- configs -->
+
 ## License
 
 [MIT](./LICENSE) License &copy; 2026-PRESENT [Vida Xie](https://github.com/9romise)

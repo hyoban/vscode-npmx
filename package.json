@@ -104,9 +104,9 @@
     "*": "eslint --fix"
   },
   "devDependencies": {
-    "@types/node": "^25.1.0",
+    "@types/node": "^25.2.0",
     "@types/vscode": "1.101.0",
-    "@vida0905/eslint-config": "^2.9.0",
+    "@vida0905/eslint-config": "^2.10.0",
     "@vscode/vsce": "^3.7.1",
     "eslint": "^9.39.2",
     "fast-npm-meta": "^1.2.0",
@@ -116,7 +116,7 @@
     "nano-staged": "^0.9.0",
     "ofetch": "^2.0.0-alpha.3",
     "perfect-debounce": "^2.1.0",
-    "reactive-vscode": "^0.4.1",
+    "reactive-vscode": "^1.0.0-beta.2",
     "tsdown": "^0.20.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18",

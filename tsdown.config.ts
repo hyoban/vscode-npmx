@@ -16,6 +16,7 @@ export default defineConfig({
     'yaml',
     'ofetch',
     'fast-npm-meta',
+    'perfect-debounce',
   ],
   minify: 'dce-only',
 })

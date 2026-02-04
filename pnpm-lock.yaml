@@ -41,6 +41,9 @@ importers:
       ofetch:
         specifier: ^2.0.0-alpha.3
         version: 2.0.0-alpha.3
+      perfect-debounce:
+        specifier: ^2.1.0
+        version: 2.1.0
       reactive-vscode:
         specifier: ^0.4.1
         version: 0.4.1(@types/vscode@1.101.0)
@@ -2438,6 +2441,9 @@ packages:
 
   pend@1.2.0:
     resolution: {integrity: sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==}
+
+  perfect-debounce@2.1.0:
+    resolution: {integrity: sha512-LjgdTytVFXeUgtHZr9WYViYSM/g8MkcTPYDlPa3cDqMirHjKiSZPYd6DoL7pK8AJQr+uWkQvCjHNdiMqsrJs+g==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -5733,6 +5739,8 @@ snapshots:
   pathe@2.0.3: {}
 
   pend@1.2.0: {}
+
+  perfect-debounce@2.1.0: {}
 
   picocolors@1.1.1: {}
 

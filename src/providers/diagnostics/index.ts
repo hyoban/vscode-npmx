@@ -5,6 +5,7 @@ import type { Diagnostic, TextDocument } from 'vscode'
 import { basename } from 'node:path'
 import { config, logger } from '#state'
 import { getPackageInfo } from '#utils/api/package'
+import { debounce } from 'perfect-debounce'
 import { computed, useActiveTextEditor, useDocumentText, watch } from 'reactive-vscode'
 import { languages } from 'vscode'
 import { displayName } from '../../generated-meta'
@@ -44,35 +45,35 @@ export function registerDiagnosticCollection(mapping: Record<string, Extractor |
     const dependencies = extractor.getDependenciesInfo(root)
     const diagnostics: Diagnostic[] = []
 
-    await Promise.all(
-      dependencies.map(async (dep) => {
-        try {
-          const pkg = await getPackageInfo(dep.name)
-          if (!pkg)
-            return
+    const flush = debounce(() => {
+      diagnosticCollection.set(document.uri, [...diagnostics])
+    }, 100)
 
-          for (const rule of enabledRules.value) {
-            const diagnostic = await rule(dep, pkg)
+    dependencies.forEach(async (dep) => {
+      try {
+        const pkg = await getPackageInfo(dep.name)
+        if (!pkg)
+          return
 
-            if (diagnostic) {
-              diagnostics.push({
-                source: displayName,
-                message: diagnostic.message,
-                severity: diagnostic.severity,
-                code: diagnostic.code,
-                range: extractor.getNodeRange(document, diagnostic.node),
-              })
-            }
+        enabledRules.value.forEach(async (rule) => {
+          const diagnostic = await rule(dep, pkg)
+
+          if (diagnostic) {
+            diagnostics.push({
+              source: displayName,
+              message: diagnostic.message,
+              severity: diagnostic.severity,
+              code: diagnostic.code,
+              range: extractor.getNodeRange(document, diagnostic.node),
+            })
+
+            flush()
           }
-        } catch (err) {
-          logger.warn(`Failed to check ${dep.name}: ${err}`)
-        }
-      }),
-    )
-
-    if (diagnostics.length > 0)
-      logger.info(`${diagnostics.length} diagnostic collected in ${document.fileName}.`)
-    diagnosticCollection.set(document.uri, diagnostics)
+        })
+      } catch (err) {
+        logger.warn(`Failed to check ${dep.name}: ${err}`)
+      }
+    })
   }
 
   watch(activeDocumentText, async () => {

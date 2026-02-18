@@ -7,8 +7,8 @@ settings:
 catalogs:
   dev:
     '@types/node':
-      specifier: ^25.2.2
-      version: 25.2.2
+      specifier: ^25.2.3
+      version: 25.2.3
     '@vida0905/eslint-config':
       specifier: ^2.10.0
       version: 2.10.0
@@ -28,8 +28,8 @@ catalogs:
       specifier: ^5.9.3
       version: 5.9.3
     vscode-ext-gen:
-      specifier: 1.3.0
-      version: 1.3.0
+      specifier: ^1.5.1
+      version: 1.5.1
   inline:
     fast-npm-meta:
       specifier: ^1.2.1
@@ -54,8 +54,8 @@ catalogs:
       version: 2.8.2
   test:
     jest-mock-vscode:
-      specifier: ^4.10.0
-      version: 4.10.0
+      specifier: ^4.11.0
+      version: 4.11.0
     vite-tsconfig-paths:
       specifier: ^6.1.1
       version: 6.1.1
@@ -69,13 +69,13 @@ importers:
     devDependencies:
       '@types/node':
         specifier: catalog:dev
-        version: 25.2.2
+        version: 25.2.3
       '@types/vscode':
         specifier: 1.101.0
         version: 1.101.0
       '@vida0905/eslint-config':
         specifier: catalog:dev
-        version: 2.10.0(@vue/compiler-sfc@3.5.14)(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2))
+        version: 2.10.0(@vue/compiler-sfc@3.5.14)(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2))
       eslint:
         specifier: catalog:dev
         version: 9.39.2(jiti@2.6.1)
@@ -87,7 +87,7 @@ importers:
         version: 9.1.7
       jest-mock-vscode:
         specifier: catalog:test
-        version: 4.10.0(@types/vscode@1.101.0)
+        version: 4.11.0(@types/vscode@1.101.0)
       jsonc-parser:
         specifier: catalog:inline
         version: 3.3.1
@@ -114,13 +114,13 @@ importers:
         version: 5.9.3
       vite-tsconfig-paths:
         specifier: catalog:test
-        version: 6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2))
+        version: 6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2))
       vitest:
         specifier: catalog:test
-        version: 4.0.18(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2)
+        version: 4.0.18(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2)
       vscode-ext-gen:
         specifier: catalog:dev
-        version: 1.3.0
+        version: 1.5.1
       yaml:
         specifier: catalog:inline
         version: 2.8.2
@@ -791,8 +791,8 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@25.2.2':
-    resolution: {integrity: sha512-BkmoP5/FhRYek5izySdkOneRyXYN35I860MFAGupTdebyE66uZaR+bXLHq8k4DirE5DwQi3NuhvRU1jqTVwUrQ==}
+  '@types/node@25.2.3':
+    resolution: {integrity: sha512-m0jEgYlYz+mDJZ2+F4v8D1AyQb+QzsNqRuI7xg1VQX/KlKS0qT9r1Mo16yo5F/MtifXFgaofIFsdFMox2SxIbQ==}
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
@@ -1507,8 +1507,8 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
-  jest-mock-vscode@4.10.0:
-    resolution: {integrity: sha512-NwhEGYjvhCY6EEXWgCmtszb1AVyl1vWyndb9t/pyyS923B0uLPW6DD5ITJyaX5ExvGdNKUO6wMSkD9nTQoc1Rg==}
+  jest-mock-vscode@4.11.0:
+    resolution: {integrity: sha512-QKKDctoILqEF5kA0VeTAEtd/aESNbQwsZW6okW58D/5ihFkXp8ay/7XY4jYojN3Fm0/3lkvrzk7nV1gnY7NMBg==}
     engines: {node: '>22.0.0'}
     peerDependencies:
       '@types/vscode': ^1.90.0
@@ -2167,8 +2167,8 @@ packages:
       jsdom:
         optional: true
 
-  vscode-ext-gen@1.3.0:
-    resolution: {integrity: sha512-Urn3N9b+lCzz0ZU9S+CFU9YT39NfAhdxdJKIxy82Qh3rOJ2KepKxZXHdek3yMqB20AAbosddFcAPMdTH3ZD0rA==}
+  vscode-ext-gen@1.5.1:
+    resolution: {integrity: sha512-FI8XbZBDu8K6hj5PXRMBd+E+k1r2gmJV7QHmEsVRaDbGjk5qREMDQpFamBEQLfWj96R3JiYujC+mobUNGJYu1Q==}
     hasBin: true
 
   vscode-uri@3.1.0:
@@ -2216,7 +2216,7 @@ packages:
 
 snapshots:
 
-  '@antfu/eslint-config@7.2.0(@vue/compiler-sfc@3.5.14)(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2))':
+  '@antfu/eslint-config@7.2.0(@vue/compiler-sfc@3.5.14)(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2))':
     dependencies:
       '@antfu/install-pkg': 1.1.0
       '@clack/prompts': 0.11.0
@@ -2225,7 +2225,7 @@ snapshots:
       '@stylistic/eslint-plugin': 5.7.1(eslint@9.39.2(jiti@2.6.1))
       '@typescript-eslint/eslint-plugin': 8.54.0(@typescript-eslint/parser@8.54.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/parser': 8.54.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
-      '@vitest/eslint-plugin': 1.6.6(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2))
+      '@vitest/eslint-plugin': 1.6.6(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2))
       ansis: 4.2.0
       cac: 6.7.14
       eslint: 9.39.2(jiti@2.6.1)
@@ -2717,7 +2717,7 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@25.2.2':
+  '@types/node@25.2.3':
     dependencies:
       undici-types: 7.16.0
 
@@ -2816,9 +2816,9 @@ snapshots:
       '@typescript-eslint/types': 8.54.0
       eslint-visitor-keys: 4.2.1
 
-  '@vida0905/eslint-config@2.10.0(@vue/compiler-sfc@3.5.14)(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2))':
+  '@vida0905/eslint-config@2.10.0(@vue/compiler-sfc@3.5.14)(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2))':
     dependencies:
-      '@antfu/eslint-config': 7.2.0(@vue/compiler-sfc@3.5.14)(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2))
+      '@antfu/eslint-config': 7.2.0(@vue/compiler-sfc@3.5.14)(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2))
       '@e18e/eslint-plugin': 0.1.4(eslint@9.39.2(jiti@2.6.1))
       cac: 6.7.14
       eslint: 9.39.2(jiti@2.6.1)
@@ -2847,14 +2847,14 @@ snapshots:
       - typescript
       - vitest
 
-  '@vitest/eslint-plugin@1.6.6(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2))':
+  '@vitest/eslint-plugin@1.6.6(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.18(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2))':
     dependencies:
       '@typescript-eslint/scope-manager': 8.54.0
       '@typescript-eslint/utils': 8.54.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
       eslint: 9.39.2(jiti@2.6.1)
     optionalDependencies:
       typescript: 5.9.3
-      vitest: 4.0.18(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2)
+      vitest: 4.0.18(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -2867,13 +2867,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.0.3
 
-  '@vitest/mocker@4.0.18(vite@7.3.1(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2))':
+  '@vitest/mocker@4.0.18(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2))':
     dependencies:
       '@vitest/spy': 4.0.18
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 7.3.1(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2)
+      vite: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2)
 
   '@vitest/pretty-format@4.0.18':
     dependencies:
@@ -3517,7 +3517,7 @@ snapshots:
 
   isexe@2.0.0: {}
 
-  jest-mock-vscode@4.10.0(@types/vscode@1.101.0):
+  jest-mock-vscode@4.11.0(@types/vscode@1.101.0):
     dependencies:
       '@types/vscode': 1.101.0
       vscode-uri: 3.1.0
@@ -4268,17 +4268,17 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  vite-tsconfig-paths@6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2)):
+  vite-tsconfig-paths@6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2)):
     dependencies:
       debug: 4.4.3
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@5.9.3)
-      vite: 7.3.1(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2)
+      vite: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@7.3.1(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2):
+  vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2):
     dependencies:
       esbuild: 0.27.2
       fdir: 6.5.0(picomatch@4.0.3)
@@ -4287,15 +4287,15 @@ snapshots:
       rollup: 4.57.1
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 25.2.2
+      '@types/node': 25.2.3
       fsevents: 2.3.3
       jiti: 2.6.1
       yaml: 2.8.2
 
-  vitest@4.0.18(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2):
+  vitest@4.0.18(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.18
-      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2))
+      '@vitest/mocker': 4.0.18(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2))
       '@vitest/pretty-format': 4.0.18
       '@vitest/runner': 4.0.18
       '@vitest/snapshot': 4.0.18
@@ -4312,10 +4312,10 @@ snapshots:
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
       tinyrainbow: 3.0.3
-      vite: 7.3.1(@types/node@25.2.2)(jiti@2.6.1)(yaml@2.8.2)
+      vite: 7.3.1(@types/node@25.2.3)(jiti@2.6.1)(yaml@2.8.2)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 25.2.2
+      '@types/node': 25.2.3
     transitivePeerDependencies:
       - jiti
       - less
@@ -4329,9 +4329,10 @@ snapshots:
       - tsx
       - yaml
 
-  vscode-ext-gen@1.3.0:
+  vscode-ext-gen@1.5.1:
     dependencies:
       cac: 6.7.14
+      tinyglobby: 0.2.15
 
   vscode-uri@3.1.0: {}
 

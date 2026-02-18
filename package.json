@@ -4,7 +4,7 @@
   "displayName": "npmx",
   "type": "module",
   "version": "0.4.0",
-  "packageManager": "pnpm@10.29.2",
+  "packageManager": "pnpm@10.30.0",
   "description": "A better browser for the npm registry",
   "author": {
     "name": "Vida Xie",

@@ -6,6 +6,7 @@ import { openFileInNpmx } from './commands/open-file-in-npmx'
 import { openInBrowser } from './commands/open-in-browser'
 import { commands, displayName, version } from './generated-meta'
 import { UpgradeProvider } from './providers/code-actions/upgrade'
+import { VulnerabilityCodeActionProvider } from './providers/code-actions/vulnerability'
 import { VersionCompletionItemProvider } from './providers/completion-item/version'
 import { useDiagnostics } from './providers/diagnostics'
 import { NpmxHoverProvider } from './providers/hover/npmx'
@@ -45,6 +46,19 @@ export const { activate, deactivate } = defineExtension(() => {
       return
 
     const provider = new UpgradeProvider()
+    const options = { providedCodeActionKinds: [CodeActionKind.QuickFix] }
+    const disposables = extractorEntries.map(({ pattern }) =>
+      languages.registerCodeActionsProvider({ pattern }, provider, options),
+    )
+
+    onCleanup(() => Disposable.from(...disposables).dispose())
+  })
+
+  watchEffect((onCleanup) => {
+    if (!config.diagnostics.vulnerability)
+      return
+
+    const provider = new VulnerabilityCodeActionProvider()
     const options = { providedCodeActionKinds: [CodeActionKind.QuickFix] }
     const disposables = extractorEntries.map(({ pattern }) =>
       languages.registerCodeActionsProvider({ pattern }, provider, options),

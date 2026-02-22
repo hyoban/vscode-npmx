@@ -3,14 +3,14 @@ trustPolicy: no-downgrade
 
 catalogs:
   dev:
-    '@types/node': ^25.2.3
-    '@vida0905/eslint-config': ^2.10.0
-    eslint: ^9.39.2
+    '@types/node': ^25.3.0
+    '@vida0905/eslint-config': ^2.10.1
+    eslint: ^10.0.1
     husky: ^9.1.7
     nano-staged: ^0.9.0
     tsdown: ^0.20.3
     typescript: ^5.9.3
-    vscode-ext-gen: ^1.5.1
+    vscode-ext-gen: ^1.6.0
   inline:
     fast-npm-meta: ^1.2.1
     jsonc-parser: ^3.3.1

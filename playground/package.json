@@ -5,7 +5,7 @@
     "nuxt": "npm:4.3.0"
   },
   "devDependencies": {
-    "array-includes": "",
+    "array-includes": "latest",
     "axios": "",
     "is-number": "",
     "lodash": "catalog:"

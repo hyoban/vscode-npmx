@@ -1,22 +1,20 @@
 type VersionProtocol = 'workspace' | 'catalog' | 'npm' | 'jsr' | null
 
-const URL_PREFIXES = ['http://', 'https://', 'git://', 'git+']
+const URL_PACKAGE_PATTERN = /^(?:https?:|git\+|github:)/
+function isUrlPackage(currentVersion: string) {
+  return URL_PACKAGE_PATTERN.test(currentVersion)
+}
+
 const UNSUPPORTED_PROTOCOLS = new Set(['workspace', 'catalog', 'jsr'])
 const KNOWN_PROTOCOLS = new Set([...UNSUPPORTED_PROTOCOLS, 'npm'])
 
 export interface ParsedVersion {
   protocol: VersionProtocol
-  prefix: '' | '^' | '~'
-  semver: string
+  version: string
 }
 
 export function isSupportedProtocol(protocol: VersionProtocol): boolean {
   return !protocol || !UNSUPPORTED_PROTOCOLS.has(protocol)
-}
-
-export function formatVersion(parsed: ParsedVersion): string {
-  const protocol = parsed.protocol ? `${parsed.protocol}:` : ''
-  return `${protocol}${parsed.prefix}${parsed.semver}`
 }
 
 function isKnownProtocol(protocol: string): protocol is NonNullable<VersionProtocol> {
@@ -25,11 +23,11 @@ function isKnownProtocol(protocol: string): protocol is NonNullable<VersionProto
 
 export function parseVersion(rawVersion: string): ParsedVersion | null {
   rawVersion = rawVersion.trim()
-  if (URL_PREFIXES.some((p) => rawVersion.startsWith(p)))
+  if (isUrlPackage(rawVersion))
     return null
 
   let protocol: string | null = null
-  let versionStr = rawVersion
+  let version = rawVersion
 
   const colonIndex = rawVersion.indexOf(':')
   if (colonIndex !== -1) {
@@ -38,13 +36,44 @@ export function parseVersion(rawVersion: string): ParsedVersion | null {
     if (!isKnownProtocol(protocol))
       return null
 
-    versionStr = rawVersion.slice(colonIndex + 1)
+    version = rawVersion.slice(colonIndex + 1)
   }
 
-  const firstChar = versionStr[0]
-  const hasPrefix = firstChar === '^' || firstChar === '~'
-  const prefix = hasPrefix ? firstChar : ''
-  const semver = hasPrefix ? versionStr.slice(1) : versionStr
+  return { protocol, version }
+}
 
-  return { protocol, prefix, semver }
+const RANGE_PREFIXES = ['>=', '<=', '=', '>', '<']
+
+function getVersionRangePrefix(v: string): string {
+  const ver = v.trim().toLowerCase()
+
+  if (ver === '*' || ver === '')
+    return '*'
+  if (ver[0] === '~' || ver[0] === '^')
+    return ver[0]
+  for (const leading of RANGE_PREFIXES) {
+    if (ver.startsWith(leading))
+      return leading
+  }
+  if (ver.includes('x')) {
+    const parts = ver.split('.')
+    if (parts[0] === 'x')
+      return '*'
+    if (parts[1] === 'x')
+      return '^'
+    if (parts[2] === 'x')
+      return '~'
+  }
+
+  return ''
+}
+
+export function formatUpgradeVersion(current: ParsedVersion, target: string): string {
+  const prefix = getVersionRangePrefix(current.version)
+
+  const result = prefix === '*' ? '*' : `${prefix}${target}`
+  if (!current.protocol)
+    return result
+
+  return `${current.protocol}:${result}`
 }

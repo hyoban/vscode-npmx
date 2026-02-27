@@ -1,34 +1,37 @@
 import type { DependencyInfo } from '#types/extractor'
 import type { ParsedVersion } from '#utils/version'
 import type { DiagnosticRule, NodeDiagnosticInfo } from '..'
-import { formatVersion, isSupportedProtocol, parseVersion } from '#utils/version'
+import { npmxPackageUrl } from '#utils/links'
+import { formatUpgradeVersion } from '#utils/version'
+import gt from 'semver/functions/gt'
+import lte from 'semver/functions/lte'
 import prerelease from 'semver/functions/prerelease'
-import gtr from 'semver/ranges/gtr'
-import ltr from 'semver/ranges/ltr'
-import { DiagnosticSeverity } from 'vscode'
+import { DiagnosticSeverity, Uri } from 'vscode'
 
-function createUpgradeDiagnostic(dep: DependencyInfo, parsed: ParsedVersion, upgradeVersion: string): NodeDiagnosticInfo {
-  const target = formatVersion({ ...parsed, semver: upgradeVersion })
+function createUpgradeDiagnostic(dep: DependencyInfo, parsed: ParsedVersion, target: string): NodeDiagnosticInfo {
   return {
     node: dep.versionNode,
     severity: DiagnosticSeverity.Hint,
-    message: `New version available: ${target}`,
-    code: 'upgrade',
+    message: `New version available: ${formatUpgradeVersion(parsed, target)}`,
+    code: {
+      value: 'upgrade',
+      target: Uri.parse(npmxPackageUrl(dep.name, target)),
+    },
   }
 }
 
-export const checkUpgrade: DiagnosticRule = (dep, pkg) => {
-  const parsed = parseVersion(dep.version)
-  if (!parsed || !isSupportedProtocol(parsed.protocol))
+export const checkUpgrade: DiagnosticRule = ({ dep, pkg, parsed, exactVersion }) => {
+  if (!parsed || !exactVersion)
     return
 
-  const { semver } = parsed
-  const latest = pkg.distTags.latest
+  if (Object.hasOwn(pkg.distTags, exactVersion))
+    return
 
-  if (latest && gtr(latest, semver))
+  const { latest } = pkg.distTags
+  if (gt(latest, exactVersion))
     return createUpgradeDiagnostic(dep, parsed, latest)
 
-  const currentPreId = prerelease(semver)?.[0]
+  const currentPreId = prerelease(exactVersion)?.[0]
   if (currentPreId == null)
     return
 
@@ -37,7 +40,7 @@ export const checkUpgrade: DiagnosticRule = (dep, pkg) => {
       continue
     if (prerelease(tagVersion)?.[0] !== currentPreId)
       continue
-    if (ltr(tagVersion, semver))
+    if (lte(tagVersion, exactVersion))
       continue
 
     return createUpgradeDiagnostic(dep, parsed, tagVersion)

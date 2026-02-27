@@ -1,15 +1,13 @@
 import type { DiagnosticRule } from '..'
 import { npmxPackageUrl } from '#utils/links'
-import { isSupportedProtocol, parseVersion } from '#utils/version'
 import { DiagnosticSeverity, Uri } from 'vscode'
 
-export const checkDistTag: DiagnosticRule = (dep, pkg) => {
-  const parsed = parseVersion(dep.version)
-  if (!parsed || !isSupportedProtocol(parsed.protocol))
+export const checkDistTag: DiagnosticRule = ({ dep, pkg, parsed, exactVersion }) => {
+  if (!parsed || !exactVersion)
     return
 
-  const tag = parsed.semver
-  if (!(tag in pkg.distTags))
+  const tag = parsed.version
+  if (!Object.hasOwn(pkg.distTags, tag))
     return
 
   return {

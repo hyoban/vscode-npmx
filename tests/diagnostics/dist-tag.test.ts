@@ -1,34 +1,19 @@
-import type { DependencyInfo } from '#types/extractor'
-import type { PackageInfo } from '#utils/api/package'
 import { describe, expect, it } from 'vitest'
 import { checkDistTag } from '../../src/providers/diagnostics/rules/dist-tag'
-
-function createDependency(name: string, version: string): DependencyInfo {
-  return {
-    name,
-    version,
-    nameNode: {},
-    versionNode: {},
-  }
-}
-
-function createPackageInfo(distTags: Record<string, string>): PackageInfo {
-  return { distTags } as PackageInfo
-}
+import { createContext } from './context'
 
 describe('checkDistTag', () => {
-  const packageInfo = createPackageInfo({ latest: '2.0.0' })
-
-  it('should flag when version matches a dist tag in metadata', async () => {
-    const dependency = createDependency('lodash', 'latest')
-    const result = await checkDistTag(dependency, packageInfo)
+  it('should flag when version matches a dist tag', async () => {
+    const ctx = createContext({ name: 'lodash', version: 'latest', distTags: { latest: '2.0.0' } })
+    const result = await checkDistTag(ctx)
 
     expect(result).toBeDefined()
+    expect(result!.code).toMatchObject({ value: 'dist-tag' })
   })
 
-  it('should not flag when version does not match any dist tag in metadata', async () => {
-    const dependency = createDependency('lodash', 'next')
-    const result = await checkDistTag(dependency, packageInfo)
+  it('should not flag when version does not match any dist tag', async () => {
+    const ctx = createContext({ name: 'lodash', version: 'next', distTags: { latest: '2.0.0' } })
+    const result = await checkDistTag(ctx)
 
     expect(result).toBeUndefined()
   })

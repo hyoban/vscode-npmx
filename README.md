@@ -22,10 +22,12 @@
   - Deprecated package warnings with deprecation messages
   - Package replacement suggestions (via [module-replacements](https://github.com/es-tooling/module-replacements))
   - Vulnerability detection powered by the [OSV](https://osv.dev/) database, with severity levels (critical, high, moderate, low)
-  - Upgrade hints when a newer version is available, with quick-fix code actions
+  - Dist tag warnings when a dependency uses a mutable version tag instead of a pinned version
+  - Engine mismatch warnings when dependency engine requirements conflict with the current package
+  - Upgrade hints when a newer version is available
 - **Commands**
   - Open [npmx.dev](https://npmx.dev) in external browser
-  - Open `node_modules` files on [npmx.dev](https://npmx.dev) code viewer with syntax highlighting (from editor title, context menu, or command palette)
+  - Open `node_modules` files on [npmx.dev](https://npmx.dev) code viewer with syntax highlighting (from editor title, explorer context menu, or command palette)
 
 ## Supported Files
 

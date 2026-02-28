@@ -5,7 +5,7 @@
   "type": "module",
   "version": "0.4.0",
   "packageManager": "pnpm@10.30.1",
-  "description": "A better browser for the npm registry",
+  "description": "Enhance your npm package workflow in VS Code",
   "author": {
     "name": "Vida Xie",
     "email": "vida_2020@163.com",

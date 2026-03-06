@@ -19,6 +19,26 @@ export function formatPackageId(name: string, version: string): string {
   return `${name}@${version}`
 }
 
+interface ParsedPackageId {
+  name: string
+  version: string | null
+}
+
+export function parsePackageId(id: string): ParsedPackageId {
+  const separatorIndex = id.lastIndexOf('@')
+  if (separatorIndex <= 0) {
+    return {
+      name: id,
+      version: null,
+    }
+  }
+
+  return {
+    name: id.slice(0, separatorIndex),
+    version: id.slice(separatorIndex + 1) || null,
+  }
+}
+
 /**
  * Resolve the maximum version satisfying the given range, capped by the `latest` dist-tag when possible.
  *

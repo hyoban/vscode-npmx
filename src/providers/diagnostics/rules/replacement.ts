@@ -41,11 +41,11 @@ function getReplacementInfo(replacement: ModuleReplacement) {
   }
 }
 
-export const checkReplacement: DiagnosticRule = async ({ dep }) => {
-  if (checkIgnored({ ignoreList: config.ignore.replacement, name: dep.name }))
+export const checkReplacement: DiagnosticRule = async ({ dep, name }) => {
+  if (checkIgnored({ ignoreList: config.ignore.replacement, name }))
     return
 
-  const replacement = await getReplacement(dep.name)
+  const replacement = await getReplacement(name)
   if (!replacement)
     return
 
@@ -53,7 +53,7 @@ export const checkReplacement: DiagnosticRule = async ({ dep }) => {
 
   return {
     node: dep.nameNode,
-    message: `"${dep.name}" ${message}`,
+    message: `"${name}" ${message}`,
     severity: DiagnosticSeverity.Warning,
     code: link ? { value: 'replacement', target: Uri.parse(link) } : 'replacement',
   }

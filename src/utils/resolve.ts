@@ -1,32 +1,5 @@
-import { Uri, workspace } from 'vscode'
-
-export function* walkAncestors(start: Uri, shouldStop?: (uri: Uri) => boolean): Generator<Uri, void, void> {
-  let current = start
-  while (true) {
-    yield current
-
-    if (shouldStop?.(current))
-      return
-
-    const parent = Uri.joinPath(current, '..')
-    if (parent.toString() === current.toString())
-      return
-
-    current = parent
-  }
-}
-
-export async function findNearestFile(filename: string, start: Uri, shouldStop?: (uri: Uri) => boolean): Promise<Uri | undefined> {
-  for (const dir of walkAncestors(start, shouldStop)) {
-    const fileUri = Uri.joinPath(dir, filename)
-    try {
-      await workspace.fs.stat(fileUri)
-      return fileUri
-    } catch {
-      continue
-    }
-  }
-}
+import type { Uri } from 'vscode'
+import { workspace } from 'vscode'
 
 /** A parsed `package.json` manifest file. */
 interface PackageManifest {

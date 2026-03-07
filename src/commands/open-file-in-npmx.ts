@@ -1,8 +1,9 @@
 import { PACKAGE_JSON_BASENAME } from '#constants'
 import { logger } from '#state'
 import { npmxFileUrl } from '#utils/links'
-import { findNearestFile, resolvePackageJson } from '#utils/resolve'
+import { resolvePackageJson } from '#utils/resolve'
 import { env, Uri, window } from 'vscode'
+import { findUp } from 'vscode-find-up'
 
 export async function openFileInNpmx(fileUri?: Uri) {
   const textEditor = window.activeTextEditor
@@ -23,7 +24,9 @@ export async function openFileInNpmx(fileUri?: Uri) {
   }
 
   // Find the associated package manifest and the relative path to the given file.
-  const pkgJsonUri = await findNearestFile(PACKAGE_JSON_BASENAME, uri, (u) => u.path.endsWith('/node_modules'))
+  const pkgJsonUri = await findUp(PACKAGE_JSON_BASENAME, {
+    cwd: uri,
+  })
   const manifest = pkgJsonUri ? await resolvePackageJson(pkgJsonUri) : undefined
   if (!pkgJsonUri || !manifest) {
     logger.warn(`Could not resolve npmx url: ${uri.toString()}`)

@@ -238,6 +238,7 @@
     "vite-tsconfig-paths": "catalog:test",
     "vitest": "catalog:test",
     "vscode-ext-gen": "catalog:dev",
+    "vscode-find-up": "catalog:inline",
     "yaml": "catalog:inline"
   }
 }

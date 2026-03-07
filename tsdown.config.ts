@@ -8,17 +8,19 @@ export default defineConfig({
     // so explicitly specifying a fixed entry point here.
     'jsonc-parser': resolve('./node_modules/jsonc-parser/lib/esm/main.js'),
   },
-  external: ['vscode'],
-  /// keep-sorted
-  inlineOnly: [
-    '@reactive-vscode/reactivity',
-    'fast-npm-meta',
-    'jsonc-parser',
-    'ofetch',
-    'perfect-debounce',
-    'reactive-vscode',
-    'semver',
-    'yaml',
-  ],
+  deps: {
+    neverBundle: ['vscode'],
+    /// keep-sorted
+    onlyAllowBundle: [
+      'fast-npm-meta',
+      'jsonc-parser',
+      'ofetch',
+      'perfect-debounce',
+      'semver',
+      'vscode-find-up',
+      'yaml',
+      /reactive-vscode/,
+    ],
+  },
   minify: 'dce-only',
 })

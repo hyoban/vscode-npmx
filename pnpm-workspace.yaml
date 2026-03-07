@@ -9,7 +9,7 @@ catalogs:
     eslint: ^10.0.2
     husky: ^9.1.7
     nano-staged: ^0.9.0
-    tsdown: ^0.20.3
+    tsdown: ^0.21.0
     typescript: ^5.9.3
     vscode-ext-gen: ^1.6.0
   inline:

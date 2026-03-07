@@ -22,5 +22,7 @@ export default defineConfig({
       /reactive-vscode/,
     ],
   },
+  dts: false,
   minify: 'dce-only',
+  platform: 'neutral',
 })

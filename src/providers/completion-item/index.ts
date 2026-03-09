@@ -1,4 +1,3 @@
-import { VERSION_TRIGGER_CHARACTERS } from '#constants'
 import { extractorEntries } from '#extractors'
 import { config } from '#state'
 import { watchEffect } from 'reactive-vscode'
@@ -14,7 +13,7 @@ export function useCompletionItem() {
       languages.registerCompletionItemProvider(
         { pattern },
         new VersionCompletionItemProvider(extractor),
-        ...VERSION_TRIGGER_CHARACTERS,
+        ...VersionCompletionItemProvider.triggers,
       ),
     )
 

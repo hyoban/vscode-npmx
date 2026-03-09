@@ -14,6 +14,8 @@ export class VersionCompletionItemProvider<T extends Extractor> implements Compl
     this.extractor = extractor
   }
 
+  static triggers = [':', '^', '~', '.', ...Array.from({ length: 10 }).map((_, i) => `${i}`)]
+
   async provideCompletionItems(document: TextDocument, position: Position) {
     const root = this.extractor.parse(document)
     if (!root)

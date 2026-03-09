@@ -4,6 +4,7 @@ import type { Engines } from 'fast-npm-meta'
 import type { DiagnosticContext } from '../../src/providers/diagnostics'
 import { resolveExactVersion, resolvePackageName } from '#utils/package'
 import { isSupportedProtocol, parseVersion } from '#utils/version'
+import { Uri } from 'vscode'
 
 interface CreateContextOptions {
   name: string
@@ -24,5 +25,5 @@ export function createContext(options: CreateContextOptions): DiagnosticContext 
   const exactVersion = parsed && isSupportedProtocol(parsed.protocol)
     ? resolveExactVersion(pkg, parsed.version)
     : null
-  return { dep, name: resolvePackageName(name, parsed), pkg, parsed, exactVersion, engines }
+  return { uri: Uri.file('package.json'), dep, name: resolvePackageName(name, parsed), pkg, parsed, exactVersion, engines }
 }

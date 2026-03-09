@@ -21,6 +21,7 @@ import { checkUpgrade } from './rules/upgrade'
 import { checkVulnerability } from './rules/vulnerability'
 
 export interface DiagnosticContext {
+  uri: Uri
   dep: DependencyInfo
   name: string
   pkg: PackageInfo
@@ -123,7 +124,7 @@ export function useDiagnostics() {
           : null
 
         for (const rule of rules) {
-          runRule(rule, { dep, name, pkg, parsed, exactVersion, engines })
+          runRule(rule, { uri: document.uri, dep, name, pkg, parsed, exactVersion, engines })
         }
       } catch (err) {
         logger.warn(`[diagnostics] fail to check ${dep.name}: ${err}`)

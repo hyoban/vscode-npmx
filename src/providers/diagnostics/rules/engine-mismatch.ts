@@ -1,5 +1,6 @@
 import type { Engines } from 'fast-npm-meta'
 import type { DiagnosticRule } from '..'
+import { isPackageManifestPath } from '#utils/file'
 import { npmxPackageUrl } from '#utils/links'
 import { formatPackageId } from '#utils/package'
 import Range from 'semver/classes/range'
@@ -46,7 +47,9 @@ export function resolveEngineMismatches(
   return mismatches
 }
 
-export const checkEngineMismatch: DiagnosticRule = ({ dep, name, pkg, parsed, exactVersion, engines }) => {
+export const checkEngineMismatch: DiagnosticRule = ({ uri, dep, name, pkg, parsed, exactVersion, engines }) => {
+  if (!isPackageManifestPath(uri))
+    return
   if (!parsed || !exactVersion || !engines)
     return
 

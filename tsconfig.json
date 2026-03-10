@@ -18,8 +18,6 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noEmit": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
     "skipLibCheck": true
   }
 }

@@ -1,5 +1,6 @@
 import type { Engines } from 'fast-npm-meta'
 import type { DiagnosticRule } from '..'
+import { getWorkspaceContext } from '#core/workspace'
 import { isPackageManifestPath } from '#utils/file'
 import { npmxPackageUrl } from '#utils/links'
 import { formatPackageId } from '#utils/package'
@@ -47,13 +48,23 @@ export function resolveEngineMismatches(
   return mismatches
 }
 
-export const checkEngineMismatch: DiagnosticRule = ({ uri, dep, name, pkg, parsed, exactVersion, engines }) => {
-  if (!isPackageManifestPath(uri))
-    return
-  if (!parsed || !exactVersion || !engines)
+export const checkEngineMismatch: DiagnosticRule = async ({ uri, dep, pkg }) => {
+  if (!isPackageManifestPath(uri.path))
     return
 
-  const dependencyEngines = pkg.versionsMeta[exactVersion]?.engines
+  const resolvedVersion = await dep.resolvedVersion()
+  if (!resolvedVersion)
+    return
+
+  const ctx = await getWorkspaceContext(uri)
+  const engines = (await ctx?.loadPackageManifestInfo(uri))?.engines
+
+  if (!engines)
+    return
+
+  const { specRange, resolvedName, resolvedSpec } = dep
+
+  const dependencyEngines = pkg.versionsMeta[resolvedVersion]?.engines
   if (!dependencyEngines)
     return
 
@@ -66,12 +77,12 @@ export const checkEngineMismatch: DiagnosticRule = ({ uri, dep, name, pkg, parse
     .join('; ')
 
   return {
-    node: dep.versionNode,
-    message: `Engines mismatch for "${formatPackageId(name, exactVersion)}": ${mismatchDetails}.`,
+    range: specRange,
+    message: `Engines mismatch for "${formatPackageId(resolvedName, resolvedVersion)}": ${mismatchDetails}.`,
     severity: DiagnosticSeverity.Warning,
     code: {
       value: 'engine-mismatch',
-      target: Uri.parse(npmxPackageUrl(name, parsed.version)),
+      target: Uri.parse(npmxPackageUrl(resolvedName, resolvedSpec)),
     },
   }
 }

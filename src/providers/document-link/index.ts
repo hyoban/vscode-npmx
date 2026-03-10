@@ -1,7 +1,7 @@
-import { extractorEntries } from '#extractors'
+import { SUPPORTED_DOCUMENT_PATTERN } from '#constants'
 import { config } from '#state'
 import { watchEffect } from 'reactive-vscode'
-import { Disposable, languages } from 'vscode'
+import { languages } from 'vscode'
 import { NpmxDocumentLinkProvider } from './npmx'
 
 export function useDocumentLink() {
@@ -9,10 +9,8 @@ export function useDocumentLink() {
     if (config.packageLinks === 'off')
       return
 
-    const disposables = extractorEntries.map(({ pattern, extractor }) =>
-      languages.registerDocumentLinkProvider({ pattern }, new NpmxDocumentLinkProvider(extractor)),
-    )
+    const disposable = languages.registerDocumentLinkProvider({ pattern: SUPPORTED_DOCUMENT_PATTERN }, new NpmxDocumentLinkProvider())
 
-    onCleanup(() => Disposable.from(...disposables).dispose())
+    onCleanup(() => disposable.dispose())
   })
 }

@@ -1,6 +1,7 @@
-import type { ValidNode } from '#types/extractor'
-import type { ParsedVersion } from '#utils/version'
-import type { DiagnosticRule, NodeDiagnosticInfo } from '..'
+import type { ResolvedDependencyInfo } from '#types/context'
+import type { OffsetRange } from '#types/extractor'
+import type { PackageInfo } from '#utils/api/package'
+import type { DiagnosticRule, RangeDiagnosticInfo } from '..'
 import { config } from '#state'
 import { checkIgnored } from '#utils/ignore'
 import { npmxPackageUrl } from '#utils/links'
@@ -10,35 +11,23 @@ import lte from 'semver/functions/lte'
 import prerelease from 'semver/functions/prerelease'
 import { DiagnosticSeverity, Uri } from 'vscode'
 
-export interface ResolveUpgradeOptions {
-  name: string
-  version: string
-  parsed: ParsedVersion
-  exactVersion: string
-  distTags: Record<string, string>
-  ignoreList: string[]
-}
-
-export interface UpgradeResult {
-  name: string
-  targetVersion: string
-}
-
-export function resolveUpgrade(options: ResolveUpgradeOptions): UpgradeResult | undefined {
-  const { name, version, parsed, exactVersion, distTags, ignoreList } = options
-
-  if (Object.hasOwn(distTags, version))
+export function resolveUpgrade(dep: ResolvedDependencyInfo, pkg: PackageInfo, resolvedVersion: string, ignoreList = config.ignore.upgrade) {
+  const { distTags } = pkg
+  if (Object.hasOwn(distTags, dep.resolvedSpec))
     return
 
   const { latest } = distTags
-  if (gt(latest, exactVersion)) {
-    const targetVersion = formatUpgradeVersion(parsed, latest)
-    if (checkIgnored({ ignoreList, name, version: targetVersion }))
+  const { resolvedName } = dep
+
+  if (gt(latest, resolvedVersion)) {
+    const targetVersion = formatUpgradeVersion(dep, latest)
+    if (checkIgnored({ ignoreList, name: resolvedName, version: targetVersion }))
       return
-    return { name, targetVersion }
+
+    return targetVersion
   }
 
-  const currentPreId = prerelease(exactVersion)?.[0]
+  const currentPreId = prerelease(resolvedVersion)?.[0]
   if (currentPreId == null)
     return
 
@@ -47,19 +36,19 @@ export function resolveUpgrade(options: ResolveUpgradeOptions): UpgradeResult | 
       continue
     if (prerelease(tagVersion)?.[0] !== currentPreId)
       continue
-    if (lte(tagVersion, exactVersion))
+    if (lte(tagVersion, resolvedVersion))
       continue
-    const targetVersion = formatUpgradeVersion(parsed, tagVersion)
-    if (checkIgnored({ ignoreList, name, version: targetVersion }))
+    const targetVersion = formatUpgradeVersion(dep, tagVersion)
+    if (checkIgnored({ ignoreList, name: resolvedName, version: targetVersion }))
       continue
 
-    return { name, targetVersion }
+    return targetVersion
   }
 }
 
-function createUpgradeDiagnostic(node: ValidNode, name: string, targetVersion: string): NodeDiagnosticInfo {
+function createUpgradeDiagnostic(range: OffsetRange, name: string, targetVersion: string): RangeDiagnosticInfo {
   return {
-    node,
+    range,
     severity: DiagnosticSeverity.Hint,
     message: `"${name}" can be upgraded to ${targetVersion}.`,
     code: {
@@ -69,19 +58,14 @@ function createUpgradeDiagnostic(node: ValidNode, name: string, targetVersion: s
   }
 }
 
-export const checkUpgrade: DiagnosticRule = ({ dep, name, pkg, parsed, exactVersion }) => {
-  if (!parsed || !exactVersion)
+export const checkUpgrade: DiagnosticRule = async ({ dep, pkg }) => {
+  const resolvedVersion = await dep.resolvedVersion()
+  if (!resolvedVersion)
     return
 
-  const result = resolveUpgrade({
-    name,
-    version: dep.version,
-    parsed,
-    exactVersion,
-    distTags: pkg.distTags,
-    ignoreList: config.ignore.upgrade,
-  })
+  const result = resolveUpgrade(dep, pkg, resolvedVersion)
+  if (!result)
+    return
 
-  if (result)
-    return createUpgradeDiagnostic(dep.versionNode, result.name, result.targetVersion)
+  return createUpgradeDiagnostic(dep.specRange, dep.resolvedName, result)
 }

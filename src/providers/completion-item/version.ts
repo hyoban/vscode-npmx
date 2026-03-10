@@ -1,46 +1,24 @@
-import type { Extractor } from '#types/extractor'
 import type { CompletionItemProvider, Position, TextDocument } from 'vscode'
 import { PRERELEASE_PATTERN } from '#constants'
+import { getResolvedDependencyByOffset } from '#core/workspace'
 import { config } from '#state'
-import { getPackageInfo } from '#utils/api/package'
-import { resolvePackageName } from '#utils/package'
-import { formatUpgradeVersion, isSupportedProtocol, parseVersion } from '#utils/version'
+import { offsetRangeToRange } from '#utils/ast'
+import { formatUpgradeVersion } from '#utils/version'
 import { CompletionItem, CompletionItemKind } from 'vscode'
 
-export class VersionCompletionItemProvider<T extends Extractor> implements CompletionItemProvider {
-  extractor: T
-
-  constructor(extractor: T) {
-    this.extractor = extractor
-  }
-
+export class VersionCompletionItemProvider implements CompletionItemProvider {
   static triggers = [':', '^', '~', '.', ...Array.from({ length: 10 }).map((_, i) => `${i}`)]
 
   async provideCompletionItems(document: TextDocument, position: Position) {
-    const root = this.extractor.parse(document)
-    if (!root)
-      return
-
     const offset = document.offsetAt(position)
-    const info = this.extractor.getDependencyInfoByOffset(root, offset)
+    const info = await getResolvedDependencyByOffset(document.uri, offset)
     if (!info)
       return
 
-    const {
-      versionNode,
-      name,
-      version,
-    } = info
-
-    const parsed = parseVersion(version)
-    if (!parsed || !isSupportedProtocol(parsed.protocol))
+    if (info.resolvedProtocol !== 'npm')
       return
 
-    const packageName = resolvePackageName(name, parsed)
-    if (!packageName)
-      return
-
-    const pkg = await getPackageInfo(packageName)
+    const pkg = await info.packageInfo()
     if (!pkg)
       return
 
@@ -58,10 +36,10 @@ export class VersionCompletionItemProvider<T extends Extractor> implements Compl
       if (config.completion.version === 'provenance-only' && !meta.provenance)
         continue
 
-      const text = formatUpgradeVersion(parsed, version)
+      const text = formatUpgradeVersion(info, version)
       const item = new CompletionItem(text, CompletionItemKind.Value)
 
-      item.range = this.extractor.getNodeRange(document, versionNode)
+      item.range = offsetRangeToRange(document, info.specRange)
       item.insertText = text
 
       const tag = pkg.versionToTag.get(version)

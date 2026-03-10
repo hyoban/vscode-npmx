@@ -1,25 +1,56 @@
 import type { Engines } from 'fast-npm-meta'
-import type { Node as JsonNode } from 'jsonc-parser'
-import type { Range, TextDocument } from 'vscode'
-import type { Node as YamlNode } from 'yaml'
 
-export type ValidNode = JsonNode | YamlNode
+export type {
+  Node as JsonNode,
+} from 'jsonc-parser'
 
-export interface DependencyInfo<T extends ValidNode = any> {
-  nameNode: T
-  versionNode: T
-  name: string
-  version: string
+export type {
+  Node as YamlNode,
+} from 'yaml'
+
+export type OffsetRange = [start: number, end: number]
+
+export type DependencyCategory
+  = | 'dependencies'
+    | 'devDependencies'
+    | 'peerDependencies'
+    | 'optionalDependencies'
+    | 'catalog'
+    | 'catalogs'
+
+export interface DependencyInfo {
+  category: DependencyCategory
+  categoryName?: string
+  rawName: string
+  rawSpec: string
+  nameRange: OffsetRange
+  specRange: OffsetRange
 }
 
-export interface Extractor<T extends ValidNode = any> {
-  parse: (document: TextDocument) => T | null | undefined
+interface DependenciesInfo {
+  dependencies: DependencyInfo[]
+}
 
-  getNodeRange: (document: TextDocument, node: T) => Range
+export interface PackageManifestInfo extends DependenciesInfo {
+  name?: string
+  version?: string
+  packageManager?: string
+  engines?: Engines
+}
 
-  getDependenciesInfo: (root: T) => DependencyInfo<T>[]
+export interface WorkspaceCatalogInfo extends DependenciesInfo {
+  catalogs?: Record<string, Record<string, string>>
+}
 
-  getDependencyInfoByOffset: (root: T, offset: number) => DependencyInfo<T> | undefined
+export interface BaseExtractor<T = any> {
+  parse: (text: string) => T | null | undefined
+  getDependenciesInfo: (root: T) => DependencyInfo[]
+}
 
-  getEngines?: (root: T) => Engines | undefined
+export interface PackageManifestExtractor {
+  getPackageManifestInfo: (text: string) => PackageManifestInfo | undefined
+}
+
+export interface WorkspaceCatalogExtractor {
+  getWorkspaceCatalogInfo: (text: string) => WorkspaceCatalogInfo | undefined
 }

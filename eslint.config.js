@@ -9,7 +9,7 @@ export default defineConfig(
   {
     pnpm: true,
     typescript: true,
-    ignores: ['playground'],
+    ignores: ['playground', 'tests/fixtures'],
   },
   {
     name: 'extensions/all',

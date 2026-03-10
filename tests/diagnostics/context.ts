@@ -1,9 +1,8 @@
-import type { DependencyInfo } from '#types/extractor'
 import type { PackageInfo } from '#utils/api/package'
 import type { Engines } from 'fast-npm-meta'
 import type { DiagnosticContext } from '../../src/providers/diagnostics'
-import { resolveExactVersion, resolvePackageName } from '#utils/package'
-import { isSupportedProtocol, parseVersion } from '#utils/version'
+import { resolveDependencySpec } from '#utils/dependency'
+import { resolveExactVersion } from '#utils/package'
 import { Uri } from 'vscode'
 
 interface CreateContextOptions {
@@ -18,12 +17,22 @@ interface CreateContextOptions {
 }
 
 export function createContext(options: CreateContextOptions): DiagnosticContext {
-  const { name, version, distTags = {}, versionsMeta = {}, engines } = options
-  const dep: DependencyInfo = { name, version, nameNode: {}, versionNode: {} }
-  const pkg = { distTags, versionsMeta, versionToTag: new Map() } as PackageInfo
-  const parsed = parseVersion(version)
-  const exactVersion = parsed && isSupportedProtocol(parsed.protocol)
-    ? resolveExactVersion(pkg, parsed.version)
-    : null
-  return { uri: Uri.file('package.json'), dep, name: resolvePackageName(name, parsed), pkg, parsed, exactVersion, engines }
+  const { name, version, distTags = {}, versionsMeta = {} } = options
+  const { protocol, resolvedName, resolvedSpec, resolvedProtocol } = resolveDependencySpec(name, version)
+  const pkg = { distTags, versionsMeta } as PackageInfo
+
+  const dep: DiagnosticContext['dep'] = {
+    category: 'dependencies',
+    rawName: name,
+    rawSpec: version,
+    nameRange: [0, name.length],
+    specRange: [0, version.length],
+    protocol,
+    resolvedName,
+    resolvedSpec,
+    resolvedProtocol,
+    resolvedVersion: async () => resolveExactVersion(pkg, resolvedSpec),
+    packageInfo: async () => (pkg),
+  }
+  return { uri: Uri.file('package.json'), dep, pkg }
 }

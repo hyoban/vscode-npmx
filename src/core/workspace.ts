@@ -1,16 +1,16 @@
 import type { CatalogsInfo, PackageManager, ResolvedDependencyInfo } from '#types/context'
 import type { DependencyInfo, PackageManifestInfo, WorkspaceCatalogInfo } from '#types/extractor'
-import type { MemoizeOptions } from '#utils/memoize'
+import type { CacheOptions } from 'ocache'
 import type { WorkspaceFolder } from 'vscode'
+import { getPackageInfo } from '#api/package'
 import { logger } from '#state'
-import { getPackageInfo } from '#utils/api/package'
 import { isOffsetInRange } from '#utils/ast'
 import { resolveDependencySpec } from '#utils/dependency'
 import { getDocumentText, isPackageManifestPath, isWorkspaceFilePath } from '#utils/file'
-import { memoize } from '#utils/memoize'
 import { resolveExactVersion } from '#utils/package'
 import { detectPackageManager, workspaceFileMapping } from '#utils/package-manager'
 import { lazyInit } from '#utils/shared'
+import { defineCachedFunction } from 'ocache'
 import { Uri, workspace } from 'vscode'
 import { accessOk } from 'vscode-find-up'
 import { getExtractor } from './extractors'
@@ -23,6 +23,7 @@ class WorkspaceContext {
   folder: WorkspaceFolder
   packageManager: PackageManager = 'npm'
   #catalogs?: PromiseWithResolvers<CatalogsInfo | undefined>
+  #invalidatedPaths = new Set<string>()
 
   private constructor(folder: WorkspaceFolder) {
     this.folder = folder
@@ -53,11 +54,17 @@ class WorkspaceContext {
     }
   }
 
-  #memoizeOptions: MemoizeOptions<Uri> = {
+  #cacheOptions: CacheOptions<any, [Uri]> = {
     getKey: (uri) => uri.path,
-    ttl: false,
-    maxSize: Number.POSITIVE_INFINITY,
-    fallbackToCachedOnError: false,
+    maxAge: 0,
+    swr: false,
+    staleMaxAge: 0,
+    shouldInvalidateCache: (uri) => this.#invalidatedPaths.delete(uri.path),
+  }
+
+  invalidateDependencyInfo(uri: Uri) {
+    const path = uri.path
+    this.#invalidatedPaths.add(path)
   }
 
   #createResolvedDependencyInfo(dependency: DependencyInfo, catalogs?: CatalogsInfo): ResolvedDependencyInfo {
@@ -87,9 +94,9 @@ class WorkspaceContext {
     }
   }
 
-  loadPackageManifestInfo = memoize<
-    Uri,
-    Promise<WithResolvedDependencyInfo<PackageManifestInfo> | undefined>
+  loadPackageManifestInfo = defineCachedFunction<
+    WithResolvedDependencyInfo<PackageManifestInfo> | undefined,
+    [Uri]
   >(async (uri) => {
     const path = uri.path
     if (!isPackageManifestPath(path))
@@ -113,11 +120,11 @@ class WorkspaceContext {
       ...info,
       dependencies: info.dependencies.map((dep) => this.#createResolvedDependencyInfo(dep, catalogs)),
     }
-  }, this.#memoizeOptions)
+  }, this.#cacheOptions)
 
-  loadWorkspaceCatalogInfo = memoize<
-    Uri,
-    Promise<WithResolvedDependencyInfo<WorkspaceCatalogInfo> | undefined>
+  loadWorkspaceCatalogInfo = defineCachedFunction<
+    WithResolvedDependencyInfo<WorkspaceCatalogInfo> | undefined,
+    [Uri]
   >(async (uri) => {
     const path = uri.path
     if (!isWorkspaceFilePath(path))
@@ -138,20 +145,28 @@ class WorkspaceContext {
       ...info,
       dependencies: info.dependencies.map((dep) => this.#createResolvedDependencyInfo(dep)),
     }
-  }, this.#memoizeOptions)
+  }, this.#cacheOptions)
 }
 
-const getWorkspaceContextByFolder = memoize<WorkspaceFolder, Promise<WorkspaceContext | undefined>>(async (folder) => {
+const invalidatedFolderPaths = new Set<string>()
+
+const getWorkspaceContextByFolder = defineCachedFunction<
+  WorkspaceContext | undefined,
+  [WorkspaceFolder]
+> (async (folder) => {
   logger.info(`[workspace-context] built ${folder.uri.path}`)
   return await WorkspaceContext.create(folder)
 }, {
+  name: 'workspace-context',
   getKey: (folder) => folder.uri.path,
-  ttl: false,
-  fallbackToCachedOnError: false,
+  swr: false,
+  maxAge: 0,
+  staleMaxAge: 0,
+  shouldInvalidateCache: (folder) => invalidatedFolderPaths.delete(folder.uri.path),
 })
 
 export function deleteWorkspaceContextCache(folder: WorkspaceFolder) {
-  getWorkspaceContextByFolder.delete(folder)
+  invalidatedFolderPaths.add(folder.uri.path)
 }
 
 export async function getWorkspaceContext(uri: Uri) {

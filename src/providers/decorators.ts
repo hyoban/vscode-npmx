@@ -37,7 +37,7 @@ export function useDecorators() {
           range: new Range(line, 0, line, len),
           renderOptions: {
             after: {
-              contentText: `\t\t# ${dep.resolvedSpec}`,
+              contentText: `\t\t ${dep.resolvedSpec}`,
             },
           },
         })

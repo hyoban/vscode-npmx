@@ -3,20 +3,36 @@ import type { DependencyInfo, PackageManifestInfo, WorkspaceCatalogInfo } from '
 import type { CacheOptions } from 'ocache'
 import type { WorkspaceFolder } from 'vscode'
 import { getPackageInfo } from '#api/package'
+import { PNPM_WORKSPACE_BASENAME, YARN_WORKSPACE_BASENAME } from '#constants'
 import { logger } from '#state'
 import { isOffsetInRange } from '#utils/ast'
 import { resolveDependencySpec } from '#utils/dependency'
 import { getDocumentText, isPackageManifestPath, isWorkspaceFilePath } from '#utils/file'
 import { resolveExactVersion } from '#utils/package'
-import { detectPackageManager, workspaceFileMapping } from '#utils/package-manager'
 import { lazyInit } from '#utils/shared'
 import { defineCachedFunction } from 'ocache'
-import { Uri, workspace } from 'vscode'
+import { commands, Uri, window, workspace } from 'vscode'
 import { accessOk } from 'vscode-find-up'
 import { getExtractor } from './extractors'
 
 type WithResolvedDependencyInfo<T> = Omit<T, 'dependencies'> & {
   dependencies: ResolvedDependencyInfo[]
+}
+
+export const workspaceFileMapping: Record<Exclude<PackageManager, 'npm'>, string> = {
+  pnpm: PNPM_WORKSPACE_BASENAME,
+  yarn: YARN_WORKSPACE_BASENAME,
+}
+
+async function getPackageManager(uri: Uri): Promise<PackageManager> {
+  try {
+    const result = await commands.executeCommand<PackageManager>('npm.packageManager', uri)
+    return result || 'npm'
+  } catch (error) {
+    console.error('Error getting package manager:', error)
+    window.showErrorMessage('Failed to detect package manager. Defaulting to npm.')
+    return 'npm'
+  }
 }
 
 class WorkspaceContext {
@@ -38,7 +54,7 @@ class WorkspaceContext {
 
   async loadWorkspace() {
     this.#catalogs = undefined
-    this.packageManager = await detectPackageManager(this.folder)
+    this.packageManager = await getPackageManager(this.folder.uri)
 
     logger.info(`[workspace-context] detect package manager: ${this.packageManager}`)
 

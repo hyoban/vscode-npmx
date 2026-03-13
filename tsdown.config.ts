@@ -11,7 +11,7 @@ export default defineConfig({
   deps: {
     neverBundle: ['vscode'],
     /// keep-sorted
-    onlyAllowBundle: [
+    onlyBundle: [
       'fast-npm-meta',
       'jsonc-parser',
       'ocache',

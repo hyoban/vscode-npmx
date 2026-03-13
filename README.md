@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/npmx-dev/vscode-npmx/blob/main/res/logo.png?raw=true" height="150">
+  <img src="https://github.com/npmx-dev/vscode-npmx/blob/main/res/logo.png?raw=true" alt="npmx" height="150">
 </p>
 
 <h1 align="center">npmx <sup>VS Code</sup></h1>

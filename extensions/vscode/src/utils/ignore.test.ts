@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { checkIgnored } from '../../src/utils/ignore'
+import { checkIgnored } from './ignore'
 
 describe('checkIgnored', () => {
   it('should match exact package name', () => {

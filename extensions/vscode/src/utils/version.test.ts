@@ -1,6 +1,6 @@
 import type { ResolvedDependencyInfo } from '#types/context'
 import { describe, expect, it } from 'vitest'
-import { formatUpgradeVersion } from '../../src/utils/version'
+import { formatUpgradeVersion } from './version'
 
 describe('formatUpgradeVersion', () => {
   it.each([

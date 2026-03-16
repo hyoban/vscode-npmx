@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createBatchRunner } from '../../src/utils/batch'
+import { createBatchRunner } from './batch'
 
 describe('createBatchRunner', () => {
   beforeEach(() => {

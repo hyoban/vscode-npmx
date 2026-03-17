@@ -1,19 +1,11 @@
-import type { CatalogsInfo, ResolvedDependencyInfo } from '#types/context'
-import { isJsrNpmPackage, jsrNpmToJsrName, parsePackageId } from '#utils/package'
+import type { CatalogsInfo, ResolvedDependencyInfo } from '../types'
+import { normalizeCatalogName } from './catalog'
+import { isJsrNpmPackage, jsrNpmToJsrName, parsePackageId } from './package'
 
-interface FinalResolution extends Pick<ResolvedDependencyInfo, 'resolvedName' | 'resolvedSpec' | 'resolvedProtocol'> {
-}
+type FinalResolution = Pick<ResolvedDependencyInfo, 'resolvedName' | 'resolvedSpec' | 'resolvedProtocol'>
 
-interface DependencySpecResolution extends FinalResolution, Pick<ResolvedDependencyInfo, 'protocol' | 'categoryName'> {
-}
-
-const DEFAULT_CATALOG_NAME = 'default'
 const GIT_PATTERN = /^(?:git\+|git:\/\/|github:|gitlab:|bitbucket:|ssh:\/\/git@)/i
 const HTTP_PATTERN = /^https?:/i
-
-export function normalizeCatalogName(name: string): string {
-  return name.trim() || DEFAULT_CATALOG_NAME
-}
 
 function resolveNpmSpec(rawName: string, spec: string): FinalResolution {
   const alias = parsePackageId(spec)
@@ -108,7 +100,7 @@ function resolveEffectiveSpec(rawName: string, rawSpec: string, catalogs?: Catal
   }
 }
 
-export function resolveDependencySpec(rawName: string, rawSpec: string, catalogs: CatalogsInfo = {}): DependencySpecResolution {
+export function resolveDependencySpec(rawName: string, rawSpec: string, catalogs: CatalogsInfo = {}): ResolvedDependencyInfo {
   const spec = rawSpec.trim()
   const effective = resolveEffectiveSpec(rawName, rawSpec, catalogs)
 

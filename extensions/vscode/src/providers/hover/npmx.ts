@@ -7,8 +7,7 @@ const SPACER = '&nbsp;'
 
 export class NpmxHoverProvider implements HoverProvider {
   async provideHover(document: TextDocument, position: Position) {
-    const offset = document.offsetAt(position)
-    const dep = await resolveHoverDependency(document, offset)
+    const dep = await resolveHoverDependency(document, position)
     if (!dep)
       return
 

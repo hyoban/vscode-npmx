@@ -1,5 +1,5 @@
 import type { DependencyInfo } from '#core/workspace'
-import type { TextDocument } from 'vscode'
+import type { Position, TextDocument } from 'vscode'
 import { getResolvedDependencies, getResolvedDependencyByOffset } from '#core/workspace'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -28,6 +28,16 @@ function getOffset(text: string, target: string): number {
   return index + 1
 }
 
+function getPosition(text: string, target: string): Position {
+  const offset = getOffset(text, target)
+  const lines = text.slice(0, offset).split('\n')
+
+  return {
+    line: lines.length - 1,
+    character: (lines.at(-1)?.length ?? 1) - 1,
+  } as Position
+}
+
 function createDependencyInfo(overrides: Partial<DependencyInfo> = {}): DependencyInfo {
   return {
     category: 'dependencies',
@@ -46,10 +56,55 @@ function createDependencyInfo(overrides: Partial<DependencyInfo> = {}): Dependen
 }
 
 function createDocument(path: string, text: string): TextDocument {
+  const lines = text.split('\n')
+
+  function getLineStartOffset(line: number): number {
+    return lines
+      .slice(0, line)
+      .reduce((total, current) => total + current.length + 1, 0)
+  }
+
+  function getWordRangeAtPosition(position: Position) {
+    const lineText = lines[position.line] ?? ''
+    const char = lineText[position.character]
+    if (!char || !/[\w-]/.test(char))
+      return
+
+    let start = position.character
+    let end = position.character + 1
+
+    while (start > 0 && /[\w-]/.test(lineText[start - 1]!))
+      start--
+
+    while (end < lineText.length && /[\w-]/.test(lineText[end]!))
+      end++
+
+    return {
+      start: { line: position.line, character: start },
+      end: { line: position.line, character: end },
+    }
+  }
+
   return {
     uri: Uri.file(path),
     getText: () => text,
-  } as TextDocument
+    getWordRangeAtPosition,
+    lineAt: (line: number) => ({
+      text: lines[line] ?? '',
+      lineNumber: line,
+      range: {
+        start: { line, character: 0 },
+        end: { line, character: (lines[line] ?? '').length },
+      },
+      rangeIncludingLineBreak: {
+        start: { line, character: 0 },
+        end: { line, character: (lines[line] ?? '').length + 1 },
+      },
+      firstNonWhitespaceCharacterIndex: (lines[line] ?? '').search(/\S|$/),
+      isEmptyOrWhitespace: !(lines[line] ?? '').trim(),
+    }),
+    offsetAt: (position: Position) => getLineStartOffset(position.line) + position.character,
+  } as unknown as TextDocument
 }
 
 describe('resolveHoverDependency', () => {
@@ -66,7 +121,7 @@ describe('resolveHoverDependency', () => {
     mockedFindUp.mockResolvedValue(pkgJsonUri)
     mockedGetResolvedDependencies.mockResolvedValue([dependency])
 
-    const resolved = await resolveHoverDependency(document, getOffset(text, 'lodash'))
+    const resolved = await resolveHoverDependency(document, getPosition(text, 'lodash'))
 
     expect(resolved).toBe(dependency)
     expect(mockedFindUp).toHaveBeenCalledWith('package.json', { cwd: document.uri })
@@ -81,7 +136,7 @@ describe('resolveHoverDependency', () => {
     mockedFindUp.mockResolvedValue(Uri.file('/workspace/package.json'))
     mockedGetResolvedDependencies.mockResolvedValue([dependency])
 
-    const resolved = await resolveHoverDependency(document, getOffset(text, 'lodash/fp'))
+    const resolved = await resolveHoverDependency(document, getPosition(text, 'lodash'))
 
     expect(resolved).toBe(dependency)
   })
@@ -100,7 +155,7 @@ describe('resolveHoverDependency', () => {
     mockedFindUp.mockResolvedValue(Uri.file('/workspace/package.json'))
     mockedGetResolvedDependencies.mockResolvedValue([dependency])
 
-    const resolved = await resolveHoverDependency(document, getOffset(text, 'foo/subpath'))
+    const resolved = await resolveHoverDependency(document, getPosition(text, 'foo'))
 
     expect(resolved).toBe(dependency)
     expect(resolved?.resolvedName).toBe('bar')
@@ -115,19 +170,39 @@ describe('resolveHoverDependency', () => {
       createDependencyInfo({ rawName: 'lodash' }),
     ])
 
-    await expect(resolveHoverDependency(document, getOffset(text, 'react'))).resolves.toBeUndefined()
+    await expect(resolveHoverDependency(document, getPosition(text, 'react'))).resolves.toBeUndefined()
   })
 
   it('should keep package manifest hover on the existing path', async () => {
-    const document = createDocument('/workspace/package.json', '"dependencies": { "lodash": "^1.0.0" }')
+    const text = '"dependencies": { "lodash": "^1.0.0" }'
+    const document = createDocument('/workspace/package.json', text)
     const dependency = createDependencyInfo()
+    const position = getPosition(text, 'lodash')
 
     mockedGetResolvedDependencyByOffset.mockResolvedValue(dependency)
 
-    const resolved = await resolveHoverDependency(document, 20)
+    const resolved = await resolveHoverDependency(document, position)
 
     expect(resolved).toBe(dependency)
-    expect(mockedGetResolvedDependencyByOffset).toHaveBeenCalledWith(document.uri, 20)
+    expect(mockedGetResolvedDependencyByOffset).toHaveBeenCalledWith(document.uri, document.offsetAt(position))
+    expect(mockedFindUp).not.toHaveBeenCalled()
+    expect(mockedGetResolvedDependencies).not.toHaveBeenCalled()
+  })
+
+  it('should return early when the hover position is not on a word', async () => {
+    const text = 'import foo from \'lodash\''
+    const document = createDocument('/workspace/src/index.ts', text)
+
+    await expect(resolveHoverDependency(document, { line: 0, character: 6 } as Position)).resolves.toBeUndefined()
+    expect(mockedFindUp).not.toHaveBeenCalled()
+    expect(mockedGetResolvedDependencies).not.toHaveBeenCalled()
+  })
+
+  it('should return early when the hover word is not inside a string', async () => {
+    const text = 'const lodash = someValue'
+    const document = createDocument('/workspace/src/index.ts', text)
+
+    await expect(resolveHoverDependency(document, getPosition(text, 'lodash'))).resolves.toBeUndefined()
     expect(mockedFindUp).not.toHaveBeenCalled()
     expect(mockedGetResolvedDependencies).not.toHaveBeenCalled()
   })

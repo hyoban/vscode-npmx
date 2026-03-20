@@ -1,14 +1,14 @@
 import type { HoverProvider, Position, TextDocument } from 'vscode'
-import { getResolvedDependencyByOffset } from '#core/workspace'
 import { jsrPackageUrl, npmxDocsUrl, npmxPackageUrl } from '#utils/links'
 import { Hover, MarkdownString } from 'vscode'
+import { resolveHoverDependency } from './resolve'
 
 const SPACER = '&nbsp;'
 
 export class NpmxHoverProvider implements HoverProvider {
   async provideHover(document: TextDocument, position: Position) {
     const offset = document.offsetAt(position)
-    const dep = await getResolvedDependencyByOffset(document.uri, offset)
+    const dep = await resolveHoverDependency(document, offset)
     if (!dep)
       return
 

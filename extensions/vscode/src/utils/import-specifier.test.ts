@@ -17,15 +17,6 @@ function getLastRange(text: string, target: string): [number, number] {
   return [index, index + target.length]
 }
 
-function getSpecifierRange(text: string, specifier: string): [number, number] {
-  const target = `'${specifier}'`
-  const index = text.indexOf(target)
-  if (index === -1)
-    throw new Error(`Missing target "${target}" in test input`)
-
-  return [index + 1, index + 1 + specifier.length]
-}
-
 describe('getImportSpecifierInLine', () => {
   it.each([
     ['import foo from \'lodash\'', 'lodash', 'lodash', 0],
@@ -36,7 +27,6 @@ describe('getImportSpecifierInLine', () => {
     expect(getImportSpecifierInLine(text, getRange(text, packageName, fromIndex))).toEqual({
       specifier,
       packageName,
-      range: getSpecifierRange(text, specifier),
     })
   })
 
@@ -46,7 +36,6 @@ describe('getImportSpecifierInLine', () => {
     expect(getImportSpecifierInLine(text, getLastRange(text, 'react'))).toEqual({
       specifier: 'react',
       packageName: 'react',
-      range: getSpecifierRange(text, 'react'),
     })
   })
 

@@ -3,7 +3,6 @@ import type { OffsetRange } from 'npmx-language-core/types'
 export interface ImportSpecifierHit {
   specifier: string
   packageName: string
-  range: OffsetRange
 }
 
 const RELATIVE_IMPORT_PATTERN = /^\.{1,2}(?:\/|$)/
@@ -77,6 +76,5 @@ export function getImportSpecifierInLine(text: string, range: OffsetRange): Impo
   return {
     specifier,
     packageName,
-    range: [leftQuoteIndex + 1, rightQuoteIndex],
   }
 }

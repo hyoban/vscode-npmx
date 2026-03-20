@@ -206,4 +206,18 @@ describe('resolveHoverDependency', () => {
     expect(mockedFindUp).not.toHaveBeenCalled()
     expect(mockedGetResolvedDependencies).not.toHaveBeenCalled()
   })
+
+  it('should return undefined when import context is not on the current line', async () => {
+    const text = [
+      'import {',
+      '  foo,',
+      '} from',
+      '  \'lodash\'',
+    ].join('\n')
+    const document = createDocument('/workspace/src/index.ts', text)
+
+    await expect(resolveHoverDependency(document, getPosition(text, 'lodash'))).resolves.toBeUndefined()
+    expect(mockedFindUp).not.toHaveBeenCalled()
+    expect(mockedGetResolvedDependencies).not.toHaveBeenCalled()
+  })
 })

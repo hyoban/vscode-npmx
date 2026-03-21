@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getImportSpecifierInLine } from './import-specifier'
+import { getImportSpecifierInLine } from './source-import'
 
 function getRange(text: string, target: string, fromIndex = 0): [number, number] {
   const index = text.indexOf(target, fromIndex)

@@ -2,8 +2,8 @@ import type { DependencyInfo } from '#core/workspace'
 import type { Position, TextDocument } from 'vscode'
 import { getResolvedDependencies, getResolvedDependencyByOffset } from '#core/workspace'
 import { isSupportedDependencyDocument } from '#utils/file'
-import { getImportSpecifierInLine } from '#utils/import-specifier'
 import { PACKAGE_JSON_BASENAME } from 'npmx-language-core/constants'
+import { getImportSpecifierInLine } from 'npmx-language-core/utils'
 import { findUp } from 'vscode-find-up'
 
 export async function resolveHoverDependency(

@@ -1,4 +1,4 @@
-import type { OffsetRange } from 'npmx-language-core/types'
+import type { OffsetRange } from '../types'
 
 export interface ImportSpecifierHit {
   specifier: string

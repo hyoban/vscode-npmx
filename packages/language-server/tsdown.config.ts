@@ -18,6 +18,7 @@ export default defineConfig({
     onlyBundle: [
       /^vscode-/,
       /^@volar\//,
+      'package-manager-detector',
       'request-light',
       'path-browserify',
       'semver',

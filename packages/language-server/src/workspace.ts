@@ -1,23 +1,37 @@
 import type { Connection, LanguageServer } from '@volar/language-server'
 import type { DependencyInfo, PackageManager, WorkspaceAdapter } from 'npmx-language-core/workspace'
-import type { IWorkspaceState } from 'npmx-language-service/types'
-import type { GetPackageManagerRequest } from 'npmx-shared/protocol'
+import type { ClientFeatures, IWorkspaceState } from 'npmx-language-service/types'
 import { access, readFile } from 'node:fs/promises'
-import { RequestType } from '@volar/language-server'
 import { DEPENDENCY_FILE_GLOB, PACKAGE_JSON_BASENAME } from 'npmx-language-core/constants'
 import { isDependencyFile, isPackageManifest } from 'npmx-language-core/utils'
 import { WorkspaceContext } from 'npmx-language-core/workspace'
-import { GET_PACKAGE_MANAGER_METHOD } from 'npmx-shared/protocol'
+import { DEFAULT_CLIENT_FEATURES } from 'npmx-language-service/types'
 import { defineCachedFunction } from 'ocache'
+import { detect } from 'package-manager-detector/detect'
 import { URI } from 'vscode-uri'
 
-const getPackageManagerRequestType = new RequestType<
-  GetPackageManagerRequest.ParamsType,
-  GetPackageManagerRequest.ResponseType,
-  GetPackageManagerRequest.ErrorType
->(GET_PACKAGE_MANAGER_METHOD)
+/**
+ * Exported for unit tests only.
+ * @internal
+ */
+export async function detectPackageManagerFromProject(rootPath: string): Promise<PackageManager> {
+  const result = await detect({
+    cwd: rootPath,
+    stopDir: rootPath,
+  })
 
-function createLanguageServerAdapter(folderUri: URI, connection: Connection, server: LanguageServer): WorkspaceAdapter {
+  switch (result?.name) {
+    case 'bun':
+    case 'npm':
+    case 'pnpm':
+    case 'yarn':
+      return result.name
+    default:
+      return 'npm'
+  }
+}
+
+function createLanguageServerAdapter(folderUri: URI, server: LanguageServer): WorkspaceAdapter {
   return {
     async readFile(path: string): Promise<string> {
       const uri = folderUri.with({ path })
@@ -37,22 +51,14 @@ function createLanguageServerAdapter(folderUri: URI, connection: Connection, ser
       }
     },
 
-    async detectPackageManager(rootPath): Promise<PackageManager> {
-      try {
-        const result = await connection.sendRequest(getPackageManagerRequestType, {
-          uri: rootPath,
-        })
-        return result || 'npm'
-      } catch {
-        return 'npm'
-      }
-    },
+    detectPackageManager: detectPackageManagerFromProject,
   }
 }
 
 export class WorkspaceState implements IWorkspaceState {
   #connection: Connection
   #server: LanguageServer
+  #clientFeatures: ClientFeatures = DEFAULT_CLIENT_FEATURES
 
   constructor(connection: Connection, server: LanguageServer) {
     this.#connection = connection
@@ -82,6 +88,14 @@ export class WorkspaceState implements IWorkspaceState {
     })
   }
 
+  setClientFeatures(clientFeatures: ClientFeatures) {
+    this.#clientFeatures = clientFeatures
+  }
+
+  getClientFeatures(): ClientFeatures {
+    return this.#clientFeatures
+  }
+
   async #invalidateDependencyCacheByUri(uri: URI) {
     const folderUri = this.#getWorkspaceFolderUri(uri.toString())
     if (!folderUri || !this.#cachedFolderPaths.has(folderUri.path))
@@ -108,7 +122,7 @@ export class WorkspaceState implements IWorkspaceState {
     async (folderUri) => {
       const ctx = await WorkspaceContext.create(
         folderUri.path,
-        createLanguageServerAdapter(folderUri, this.#connection, this.#server),
+        createLanguageServerAdapter(folderUri, this.#server),
       )
       this.#cachedFolderPaths.add(folderUri.path)
 

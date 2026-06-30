@@ -6,7 +6,7 @@ const RANGE_PREFIXES = ['>=', '<=', '=', '>', '<']
 function getVersionRangePrefix(v: string): string {
   const ver = v.trim().toLowerCase()
 
-  if (ver === '*' || ver === '')
+  if (ver === '*')
     return '*'
   if (ver[0] === '~' || ver[0] === '^')
     return ver[0]

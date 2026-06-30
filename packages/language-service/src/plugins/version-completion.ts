@@ -62,7 +62,13 @@ export function create(workspaceState: IWorkspaceState): LanguageServicePlugin {
             items.push({
               label: text,
               kind: 12 satisfies typeof CompletionItemKind.Value,
-              insertText: text,
+              textEdit: {
+                range: {
+                  start: document.positionAt(dep.specRange[0]),
+                  end: document.positionAt(dep.specRange[1]),
+                },
+                newText: text,
+              },
               detail: tag,
             })
           }

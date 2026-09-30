@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { TextDocument } from 'vscode-languageserver-textdocument'
 import { createDependencyInfo } from '../test-utils/dependency'
-import { getCatalogDependencyAtOffset } from './catalog'
+import { getCatalogDependencyAtOffset, getCatalogInlayHints } from './catalog'
 
 describe('getCatalogDependencyAtOffset', () => {
   const dependency = createDependencyInfo({
@@ -25,5 +26,27 @@ describe('getCatalogDependencyAtOffset', () => {
     })
 
     expect(getCatalogDependencyAtOffset([npmDependency], 20)).toBeUndefined()
+  })
+})
+
+describe('getCatalogInlayHints', () => {
+  it.each(['catalog:', 'catalog:dev'])('places the %s hint outside the quoted spec', (rawSpec) => {
+    const text = `{"dependencies":{"lodash":"${rawSpec}","vue":"^3.0.0"}}`
+    const document = TextDocument.create('file:///repo/package.json', 'json', 0, text)
+    const specStart = text.indexOf(rawSpec)
+    const specEnd = specStart + rawSpec.length
+    const range = { start: document.positionAt(0), end: document.positionAt(text.length) }
+    const dependencies = [createDependencyInfo({
+      rawSpec,
+      protocol: 'catalog',
+      resolvedSpec: '^4.0.0',
+      specRange: [specStart, specEnd],
+    })]
+
+    expect(getCatalogInlayHints(document, range, dependencies)).toEqual([{
+      position: document.positionAt(text.indexOf(',"vue"')),
+      label: '^4.0.0',
+      paddingLeft: true,
+    }])
   })
 })

@@ -1,5 +1,6 @@
-import type { CompletionItemKind, CompletionList, LanguageServicePlugin, LanguageServicePluginInstance, LocationLink } from '@volar/language-service'
+import type { CompletionItemKind, CompletionList, InlayHint, LanguageServicePlugin, LanguageServicePluginInstance, LocationLink, Range } from '@volar/language-service'
 import type { DependencyInfo } from 'npmx-language-core/workspace'
+import type { TextDocument } from 'vscode-languageserver-textdocument'
 import type { IWorkspaceState } from '../types'
 import { isPackageManifest } from 'npmx-language-core/utils'
 import { URI } from 'vscode-uri'
@@ -14,6 +15,31 @@ export function getCatalogDependencyAtOffset(
     return
 
   return dependency
+}
+
+export function getCatalogInlayHints(
+  document: TextDocument,
+  range: Range,
+  dependencies: DependencyInfo[],
+): InlayHint[] {
+  const startOffset = document.offsetAt(range.start)
+  const endOffset = document.offsetAt(range.end)
+
+  return dependencies.flatMap((dependency) => {
+    if (dependency.protocol !== 'catalog')
+      return []
+
+    const [specStart, specEnd] = dependency.specRange
+    if (specEnd < startOffset || specStart > endOffset)
+      return []
+
+    return [{
+      // JSON dependency ranges exclude the surrounding quotes.
+      position: document.positionAt(specEnd + 1),
+      label: dependency.resolvedSpec,
+      paddingLeft: true,
+    }]
+  })
 }
 
 export function create(workspaceState: IWorkspaceState): LanguageServicePlugin {
@@ -127,23 +153,7 @@ export function create(workspaceState: IWorkspaceState): LanguageServicePlugin {
           if (!dependencies)
             return
 
-          const startOffset = document.offsetAt(range.start)
-          const endOffset = document.offsetAt(range.end)
-
-          return dependencies.flatMap((dependency) => {
-            if (dependency.protocol !== 'catalog')
-              return []
-
-            const [specStart, specEnd] = dependency.specRange
-            if (specEnd < startOffset || specStart > endOffset)
-              return []
-
-            return [{
-              position: document.positionAt(specEnd),
-              label: dependency.resolvedSpec,
-              paddingLeft: true,
-            }]
-          })
+          return getCatalogInlayHints(document, range, dependencies)
         },
       }
     },
